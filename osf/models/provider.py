@@ -236,7 +236,7 @@ class PreprintProvider(AbstractProvider):
     REVIEWABLE_RELATION_NAME = 'preprints'
 
     additional_providers = fields.ArrayField(models.CharField(max_length=200), default=list, blank=True)
-    doi_prefix = models.CharField(blank=True, max_length=32)
+    doi_prefix = models.CharField(blank=True, null=True, max_length=32)
     in_sloan_study = models.NullBooleanField(default=True)
 
     PREPRINT_WORD_CHOICES = (

@@ -1,4 +1,3 @@
-from django.utils.six.moves import input
 import sqlparse
 
 def print_sql(sql):

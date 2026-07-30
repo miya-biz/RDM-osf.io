@@ -5,7 +5,15 @@ import psycopg2
 from django.conf import settings
 from django.db.backends.postgresql.base import \
     DatabaseWrapper as PostgresqlDatabaseWrapper
-from django.db.backends.postgresql.base import utc_tzinfo_factory
+from django.utils.timezone import utc
+
+
+def utc_tzinfo_factory(offset):
+    # Django 3.x で django.db.backends.postgresql.base から削除されたため
+    # 旧実装をここで保持する
+    if offset != 0:
+        raise AssertionError('database connection isn\'t set to UTC')
+    return utc
 
 
 class server_side_cursors(object):
