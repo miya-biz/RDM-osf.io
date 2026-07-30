@@ -27,7 +27,7 @@ def serialize_draft_registration(draft, auth=None):
     from website.project.utils import serialize_node  # noqa
     from website.util import api_v2_url
     from api.base.utils import absolute_reverse
-    from django.core.urlresolvers import NoReverseMatch
+    from django.urls import NoReverseMatch
 
     node = draft.branched_from
 

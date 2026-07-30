@@ -8,7 +8,7 @@ from django.views.generic import ListView, View
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from admin.base import settings
 from osf.models import Institution, OSFUser

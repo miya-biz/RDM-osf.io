@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.views.generic import ListView, View
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from admin.base import settings
 from osf.models import Institution, Node, RdmTimestampGrantPattern
 from admin.rdm.utils import RdmPermissionMixin, get_dummy_institution

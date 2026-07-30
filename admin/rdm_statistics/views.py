@@ -18,7 +18,7 @@ from django.apps import apps
 from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.core import mail

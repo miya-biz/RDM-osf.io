@@ -10,7 +10,7 @@ from admin.rdm_timestampadd.views import InstitutionNodeListExportCsv
 from admin_tests.utilities import setup_user_view
 from api.base import settings as api_settings
 from django.test import RequestFactory
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from nose import tools as nt
 from osf.models import RdmUserKey, RdmFileTimestamptokenVerifyResult, Guid, BaseFileNode, MapCoreGroup
 from osf_tests.factories import UserFactory, AuthUserFactory, InstitutionFactory, ProjectFactory

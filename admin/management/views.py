@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView, View
 from osf.management.commands.manage_switch_flags import manage_waffle
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import redirect
 
 class ManagementCommands(TemplateView):

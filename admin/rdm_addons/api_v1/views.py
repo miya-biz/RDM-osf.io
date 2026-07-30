@@ -6,7 +6,7 @@ from rest_framework import status as http_status
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.http.response import JsonResponse
 from django.utils.decorators import method_decorator

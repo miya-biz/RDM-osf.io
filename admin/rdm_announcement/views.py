@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, TemplateView, FormView
 

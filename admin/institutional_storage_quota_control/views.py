@@ -10,7 +10,7 @@ from addons.osfstorage.models import Region
 from django.views.generic import ListView, View
 from django.shortcuts import redirect
 from admin.rdm.utils import RdmPermissionMixin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class InstitutionStorageList(RdmPermissionMixin, UserPassesTestMixin, ListView):

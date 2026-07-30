@@ -11,7 +11,7 @@ from django.db.models import F
 from admin.base import settings
 from admin.rdm.utils import RdmPermissionMixin, get_dummy_institution
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import ListView, View, TemplateView
