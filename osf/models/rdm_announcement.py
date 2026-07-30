@@ -5,7 +5,7 @@ from osf.models.base import BaseModel
 from osf.utils.fields import NonNaiveDateTimeField, EncryptedTextField
 
 class RdmAnnouncement(BaseModel):
-    user = models.ForeignKey('OSFUser', null=True)
+    user = models.ForeignKey('OSFUser', null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=256, blank=True, null=False)
     body = models.TextField(max_length=63206, null=False)
     announcement_type = models.CharField(max_length=256, null=False)
@@ -13,7 +13,7 @@ class RdmAnnouncement(BaseModel):
     is_success = models.BooleanField(default=False)
 
 class RdmAnnouncementOption(BaseModel):
-    user = models.ForeignKey('OSFUser', null=True)
+    user = models.ForeignKey('OSFUser', null=True, on_delete=models.CASCADE)
     twitter_api_key = EncryptedTextField(blank=True, null=True)
     twitter_api_secret = EncryptedTextField(blank=True, null=True)
     twitter_access_token = EncryptedTextField(blank=True, null=True)
@@ -25,6 +25,6 @@ class RdmAnnouncementOption(BaseModel):
     redmine_api_key = EncryptedTextField(blank=True, null=True)
 
 class RdmFcmDevice(BaseModel):
-    user = models.ForeignKey('OSFUser', null=True)
+    user = models.ForeignKey('OSFUser', null=True, on_delete=models.CASCADE)
     device_token = EncryptedTextField(blank=True, null=True)
     date_created = NonNaiveDateTimeField(auto_now_add=True)

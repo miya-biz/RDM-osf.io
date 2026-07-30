@@ -25,7 +25,7 @@ class RdmAddonOption(BaseModel, CommonMixin):
     organizational_node = models.ForeignKey(AbstractNode, blank=True, null=True, default=None, on_delete=models.CASCADE,
                                             related_name='organizational_rdm_addon_option_set')
 
-    institution = models.ForeignKey(Institution, blank=False, null=False)
+    institution = models.ForeignKey(Institution, blank=False, null=False, on_delete=models.CASCADE)
     external_accounts = models.ManyToManyField(ExternalAccount, blank=True)
 
     extended = DateTimeAwareJSONField(default=dict, blank=True)

@@ -9,9 +9,9 @@ from osf.models import AbstractNode, OSFUser, Institution
 class RdmStatistics(BaseModel):
     """store statistics info of storage"""
     primary_identifier_name = 'id'
-    project = models.ForeignKey(AbstractNode, blank=False, null=True)
-    owner = models.ForeignKey(OSFUser, blank=False, null=True)
-    institution = models.ForeignKey(Institution, blank=False, null=True)
+    project = models.ForeignKey(AbstractNode, blank=False, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(OSFUser, blank=False, null=True, on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institution, blank=False, null=True, on_delete=models.CASCADE)
     provider = models.CharField(max_length=50, blank=False, null=True, db_index=True)
     storage_account_id = models.CharField(max_length=256, null=True)
     project_root_path = models.CharField(max_length=256, null=False)

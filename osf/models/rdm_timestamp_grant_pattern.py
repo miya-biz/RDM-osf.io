@@ -7,7 +7,7 @@ from osf.models import Institution
 
 class RdmTimestampGrantPattern(BaseModel):
 
-    institution = models.ForeignKey(Institution, blank=False, null=True)
+    institution = models.ForeignKey(Institution, blank=False, null=True, on_delete=models.CASCADE)
     node_guid = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     timestamp_pattern_division = models.IntegerField(default=1)
     is_forced = models.BooleanField(default=False)
