@@ -1,5 +1,3 @@
-from include import IncludeManager
-
 from django.apps import apps
 from django.db import models
 from django.utils import timezone
@@ -8,8 +6,6 @@ from osf.utils.fields import NonNaiveDateTimeField
 
 
 class FileLog(ObjectIDMixin, BaseModel):
-
-    objects = IncludeManager()
 
     DATE_FORMAT = '%m/%d/%Y %H:%M UTC'
 

@@ -528,10 +528,10 @@ def node_choose_addons(auth, node, **kwargs):
 @ember_flag_is_active(features.EMBER_PROJECT_CONTRIBUTORS)
 def node_contributors(auth, node, **kwargs):
     ret = _view_project(node, auth, primary=True)
-    contribs = node.contributor_set.include('user__groups', 'user__guids', 'user__ext')
+    contribs = node.contributor_set.prefetch_related('user__groups', 'user__guids', 'user__ext')
     ret['contributors'] = utils.serialize_contributors(contribs, node)
     ret['access_requests'] = utils.serialize_access_requests(node)
-    admin_contribs = node.parent_admin_contributors.include('groups', 'guids', 'ext')
+    admin_contribs = node.parent_admin_contributors.prefetch_related('groups', 'guids', 'ext')
     ret['adminContributors'] = utils.serialize_contributors(admin_contribs, node, admin=True)
     return ret
 
@@ -853,7 +853,7 @@ def _view_project(node, auth, primary=False,
     """Build a JSON object containing everything needed to render
     project.view.mako.
     """
-    node = AbstractNode.objects.filter(pk=node.pk).include('contributor__user__guids').get()
+    node = AbstractNode.objects.filter(pk=node.pk).prefetch_related('contributor_set__user__guids').get()
     if node.is_deleted:
         raise HTTPError(http_status.HTTP_410_GONE)
 
@@ -1301,7 +1301,7 @@ def node_child_tree(user, node):
         'is_admin': contributor.user in admin_contributors,
         'is_confirmed': contributor.user.is_confirmed,
         'visible': contributor.visible
-    } for contributor in node.contributor_set.all().include('user__guids')]
+    } for contributor in node.contributor_set.all().prefetch_related('user__guids')]
 
     can_read = node.has_permission(user, READ)
     is_admin = node.has_permission(user, ADMIN)

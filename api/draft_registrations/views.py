@@ -175,7 +175,7 @@ class DraftContributorsList(NodeContributorsList, DraftRegistrationMixin):
     def get_default_queryset(self):
         # Overrides NodeContributorsList
         draft = self.get_draft()
-        return draft.draftregistrationcontributor_set.all().include('user__guids')
+        return draft.draftregistrationcontributor_set.all().prefetch_related('user__guids')
 
     # overrides NodeContributorsList
     def get_serializer_class(self):

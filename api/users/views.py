@@ -337,7 +337,7 @@ class UserNodes(JSONAPIBaseView, generics.ListAPIView, UserMixin, UserNodesFilte
         return (
             self.get_queryset_from_request()
             .select_related('node_license')
-            .include('root__guids', limit_includes=10)
+            .prefetch_related('root__guids')
         )
 
 
@@ -392,7 +392,7 @@ class UserQuickFiles(JSONAPIBaseView, generics.ListAPIView, WaterButlerMixin, Us
         self.kwargs[self.provider_lookup_url_kwarg] = 'osfstorage'
         files_list = self.fetch_from_waterbutler()
 
-        return files_list.children.prefetch_related('versions', 'tags').include('guids')
+        return files_list.children.prefetch_related('versions', 'tags', 'guids')
 
     # overrides ListAPIView
     def get_queryset(self):
@@ -488,7 +488,7 @@ class UserRegistrations(JSONAPIBaseView, generics.ListAPIView, UserMixin, NodesF
 
     # overrides ListAPIView
     def get_queryset(self):
-        return self.get_queryset_from_request().select_related('node_license').include('contributor__user__guids', 'root__guids', limit_includes=10)
+        return self.get_queryset_from_request().select_related('node_license').prefetch_related('contributor_set__user__guids', 'root__guids')
 
 class UserDraftRegistrations(JSONAPIBaseView, generics.ListAPIView, UserMixin):
     permission_classes = (

@@ -129,7 +129,7 @@ def stage_removal(preserved_file, next_file):
 
 def return_basefilenode_values(file_queryset):
     """
-    Returns an IncludeQuerySet that has the minimum values that we need to do
+    Returns a QuerySet that has the minimum values that we need to do
     a file comparison
     """
     return file_queryset.values(

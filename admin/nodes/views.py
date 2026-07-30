@@ -250,8 +250,8 @@ class AdminNodeLogView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         node = self.get_object()
         query = Q(node_id__in=list(Node.objects.get_children(node).values_list('id', flat=True)) + [node.id])
-        return NodeLog.objects.filter(query).order_by('-date').include(
-            'node__guids', 'user__guids', 'original_node__guids', limit_includes=10
+        return NodeLog.objects.filter(query).order_by('-date').prefetch_related(
+            'node__guids', 'user__guids', 'original_node__guids',
         )
 
     def get_context_data(self, **kwargs):

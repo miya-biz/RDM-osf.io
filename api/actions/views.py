@@ -25,7 +25,7 @@ from osf.models import PreprintProvider, ReviewAction, NodeRequestAction, Prepri
 
 
 def get_review_actions_queryset():
-    return ReviewAction.objects.include(
+    return ReviewAction.objects.prefetch_related(
         'creator__guids',
         'target__guids',
         'target__provider',

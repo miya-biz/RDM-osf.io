@@ -1649,8 +1649,8 @@ class NodeLogList(JSONAPIBaseView, generics.ListAPIView, NodeMixin, ListFilterMi
             self.serializer_class = NodeLogDownloadSerializer
             self.pagination_class = NodeLogDownloadPagination
             return self.get_queryset_from_request().prefetch_related('user__guids')
-        return self.get_queryset_from_request().include(
-            'node__guids', 'user__guids', 'original_node__guids', limit_includes=10,
+        return self.get_queryset_from_request().prefetch_related(
+            'node__guids', 'user__guids', 'original_node__guids',
         )
 
     def param_queryset(self, query_params, default_queryset):

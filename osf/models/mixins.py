@@ -10,8 +10,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from guardian.shortcuts import assign_perm, get_perms, remove_perm, get_group_perms
 
-from include import IncludeQuerySet
-
 from api.providers.workflows import Workflows, PUBLIC_STATES
 from framework import status
 from framework.auth import Auth
@@ -1013,8 +1011,6 @@ class ReviewProviderMixin(GuardianMixin):
     def get_reviewable_state_counts(self):
         assert self.REVIEWABLE_RELATION_NAME, 'REVIEWABLE_RELATION_NAME must be set to compute state counts'
         qs = getattr(self, self.REVIEWABLE_RELATION_NAME)
-        if isinstance(qs, IncludeQuerySet):
-            qs = qs.include(None)
         qs = qs.filter(deleted__isnull=True, is_public=True).values('machine_state').annotate(count=models.Count('*'))
         counts = {state.value: 0 for state in ReviewStates}
         counts.update({row['machine_state']: row['count'] for row in qs if row['machine_state'] in counts})
