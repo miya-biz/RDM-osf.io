@@ -1,7 +1,7 @@
 import jwe
 from cryptography.exceptions import InvalidTag
 from django.db import models
-from django.contrib.postgres.fields.jsonb import JSONField
+from django.db.models import JSONField
 from website import settings
 from osf.utils.functional import rapply
 
@@ -113,4 +113,5 @@ class EncryptedJSONField(JSONField):
         return super(EncryptedJSONField, self).to_python(value)
 
     def from_db_value(self, value, expression, connection):
+        value = super(EncryptedJSONField, self).from_db_value(value, expression, connection)
         return self.to_python(value)
