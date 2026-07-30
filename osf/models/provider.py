@@ -176,7 +176,8 @@ class CollectionProvider(AbstractProvider):
     class Meta:
         permissions = (
             # custom permissions for use in the OSF Admin App
-            ('view_collectionprovider', 'Can view collection provider details'),
+            # Clashes with built-in permissions
+            # ('view_collectionprovider', 'Can view collection provider details'),
         )
 
     @property
@@ -201,7 +202,8 @@ class RegistrationProvider(AbstractProvider):
     class Meta:
         permissions = (
             # custom permissions for use in the OSF Admin App
-            ('view_registrationprovider', 'Can view registration provider details'),
+            # Clashes with built-in permissions
+            # ('view_registrationprovider', 'Can view registration provider details'),
         )
 
     @property
@@ -252,7 +254,8 @@ class PreprintProvider(AbstractProvider):
     class Meta:
         permissions = (
             # custom permissions for use in the OSF Admin App
-            ('view_preprintprovider', 'Can view preprint provider details'),
+            # Clashes with built-in permissions
+            # ('view_preprintprovider', 'Can view preprint provider details'),
         )
 
     @property

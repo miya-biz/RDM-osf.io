@@ -517,7 +517,8 @@ class Registration(AbstractNode):
     class Meta:
         # custom permissions for use in the GakuNin RDM Admin App
         permissions = (
-            ('view_registration', 'Can view registration details'),
+            # Clashes with built-in permissions
+            # ('view_registration', 'Can view registration details'),
         )
 
 class DraftRegistrationLog(ObjectIDMixin, BaseModel):
