@@ -363,8 +363,8 @@ If you have updated the translation files(`website/translations` or `admin/trans
 
 ```
 # Compile files for translations
-$ docker-compose run --rm web pybabel compile -d ./website/translations
-$ docker-compose run --rm web pybabel compile -D django -d ./admin/translations
+$ docker-compose run --rm web python3 scripts/translations/compile_catalogs.py -d ./website/translations
+$ docker-compose run --rm web python3 scripts/translations/compile_catalogs.py -D django -d ./admin/translations
 ```
 
 ## About setting for "Trusted-Timestamp" usage
