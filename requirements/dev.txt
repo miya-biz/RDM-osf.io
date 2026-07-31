@@ -15,7 +15,7 @@ webtest-plus==0.3.3
 mock==2.0.0
 Faker==4.0.1
 schema==0.3.1
-responses==0.9.0
+responses==0.10.6
 freezegun==1.2.1
 
 # Syntax checking
@@ -30,7 +30,7 @@ watchdog==0.8.3
 django-sslserver==0.19
 
 # Django Debug Toolbar for local development
-django-debug-toolbar==1.6
+django-debug-toolbar==3.2.4
 
 # Ipdb
 ipdb==0.10.1
@@ -42,4 +42,4 @@ pydevd==0.0.6
 nplusone==0.8.2
 
 # Profiling
-django-silk==2.0.0  # pyup: <3.0 # Remove this when we're using MIDDLEWARE
+django-silk==4.2.0  # pyup: <3.0 # Remove this when we're using MIDDLEWARE
