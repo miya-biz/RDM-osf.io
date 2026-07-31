@@ -1,4 +1,5 @@
-FROM node:8-alpine3.9
+FROM node:20-alpine AS nodejs
+FROM alpine:3.9
 
 ARG NODE_OPTIONS='--max-old-space-size=4096'
 
@@ -29,8 +30,7 @@ RUN apk add --no-cache --virtual .run-deps \
     jq \
     python3-tkinter \
     openssl \
-    curl \
-    && yarn global add bower
+    curl
 
 WORKDIR /code
 
@@ -117,6 +117,21 @@ RUN mv ./website/settings/local-dist.py ./website/settings/local.py \
     && mv ./api/base/settings/local-dist.py ./api/base/settings/local.py \
     && sed 's/DEBUG_MODE = True/DEBUG_MODE = False/' -i ./website/settings/local.py
 
+# Node 20 toolchain: alpine 3.9 (kept for apk python3 == 3.6) has no modern nodejs package,
+# so the node binary is taken from node:20-alpine together with its musl loader and
+# libstdc++/libgcc (both backward-compatible with alpine 3.9 binaries on x86_64).
+# The libraries go to /usr/local/lib: it precedes /usr/lib in the musl search path,
+# so the copies survive apk installing alpine 3.9's own libstdc++ into /usr/lib.
+# This block sits after the pip layers so Node changes do not invalidate their cache.
+COPY --from=nodejs /lib/ld-musl-x86_64.so.1 /lib/
+COPY --from=nodejs /usr/lib/libstdc++.so.6 /usr/local/lib/
+COPY --from=nodejs /usr/lib/libgcc_s.so.1 /usr/local/lib/
+COPY --from=nodejs /usr/local/bin/node /usr/local/bin/
+COPY --from=nodejs /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+    && npm install -g yarn@1.22.22 bower@1.8.14
+
 # Bower Assets
 COPY ./.bowerrc ./bower.json ./
 COPY ./admin/.bowerrc ./admin/bower.json ./admin/
@@ -127,7 +142,11 @@ RUN \
     # Admin
     && cd ./admin \
     && bower install --production --allow-root \
-    && bower cache clean --allow-root
+    && bower cache clean --allow-root \
+    && cd ../ \
+    # bower is only needed at build time; drop it (and its bundled handlebars,
+    # which trails upstream security fixes) from the shipped image.
+    && npm uninstall -g bower
 
 # Webpack Assets
 #
@@ -139,7 +158,7 @@ COPY ./scripts/translations/ ./scripts/translations/
 COPY ./website/translations/ ./website/translations/
 COPY ./website/static/js/translations/ ./website/static/js/translations/
 ## Admin
-COPY ./admin/package.json ./admin/yarn.lock ./admin/
+COPY ./admin/package.json ./admin/yarn.lock ./admin/.babelrc ./admin/
 COPY ./admin/webpack* ./admin/
 COPY ./admin/static/ ./admin/static/
 ## Addons
@@ -183,13 +202,20 @@ COPY ./addons/workflow/static/ ./addons/workflow/static/
 COPY ./addons/groups/static/ ./addons/groups/static/
 RUN \
     # OSF
-    yarn install --frozen-lockfile \
+    # --production: keep the karma/mocha test stack (and its vulnerable
+    # socket.io 1.x chain) out of the shipped image; dev/CI installs the
+    # full set themselves via `invoke assets`.
+    yarn install --production --frozen-lockfile \
+    # buildr/pulverizr: never-executed build tool pulled in by historyjs,
+    # with an unfixed CVE (CVE-2020-7604) — remove from the image.
+    # node_modules/bower: build-time only, bundles an outdated handlebars.
+    && rm -rf ./node_modules/pulverizr ./node_modules/buildr ./node_modules/bower \
     && mkdir -p ./website/static/built/ \
     && invoke build_js_config_files \
     && yarn run webpack-prod \
     # Admin
     && cd ./admin \
-    && yarn install --frozen-lockfile \
+    && yarn install --production --frozen-lockfile \
     && yarn run webpack-prod \
     && cd ../ \
     # Cleanup
@@ -202,8 +228,8 @@ COPY ./ ./
 ARG GIT_COMMIT=
 ENV GIT_COMMIT ${GIT_COMMIT}
 
-RUN pybabel compile -d ./website/translations
-RUN pybabel compile -D django -d ./admin/translations
+RUN python3 scripts/translations/compile_catalogs.py -d ./website/translations
+RUN python3 scripts/translations/compile_catalogs.py -D django -d ./admin/translations
 
 # TODO: Admin/API should fully specify their bower static deps, and not include ./website/static in their defaults.py.
 #       (this adds an additional 300+mb to the build image)
