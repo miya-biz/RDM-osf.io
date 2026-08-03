@@ -216,11 +216,16 @@ RUN \
     # Admin
     && cd ./admin \
     && yarn install --production --frozen-lockfile \
+    # same build-time-only packages as the root install above
+    && rm -rf ./node_modules/pulverizr ./node_modules/buildr ./node_modules/bower \
     && yarn run webpack-prod \
     && cd ../ \
     # Cleanup
     && yarn cache clean \
-    && npm cache clean --force
+    && npm cache clean --force \
+    # npm itself is build-time only and bundles its own dependency tree
+    # (tar etc.) that trails security fixes; yarn (standalone) stays for dev use.
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Copy the rest of the code over
 COPY ./ ./
