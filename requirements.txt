@@ -30,7 +30,7 @@ bcrypt==3.1.4
 python-dateutil==2.8.1
 python-gnupg==0.4.1
 pytz==2017.3
-bleach==3.3.0
+bleach==3.3.1  # 3.3.0 wheel ships a stray Django-1.11.29.dist-info in bleach/_vendor (fixed in 3.3.1)
 html5lib==0.999999999
 blinker==1.4
 furl==0.4.92
@@ -64,7 +64,7 @@ requests-oauthlib==0.8.0
 raven==6.4.0
 
 # API requirements
-Django==3.2.15
+Django==3.2.25  # last 3.2.x; still supports py3.6
 djangorestframework==3.13.1
 django-cors-headers==3.10.1
 djangorestframework-bulk==0.2.1
@@ -94,7 +94,7 @@ tweepy==3.5.0
 pandas==1.1.0
 matplotlib==2.1.1
 seaborn==0.8.1
-reportlab==3.4.0
+reportlab==3.5.68  # last 3.5.x with cp36 wheels (CVE-2019-17626 fixed in 3.5.31)
 pdfkit==0.6.1
 numpy==1.15.4
 

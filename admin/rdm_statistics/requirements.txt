@@ -4,5 +4,5 @@
 matplotlib==2.1.1
 pandas==1.1.0
 seaborn==0.8.1
-reportlab==3.4.0
+reportlab==3.5.68  # keep in sync with /requirements.txt (CVE-2019-17626 fixed in 3.5.31)
 pdfkit==0.6.1
