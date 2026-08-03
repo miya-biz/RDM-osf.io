@@ -57,7 +57,7 @@ class UserFactory(DjangoModelFactory):
 
     username = factory.LazyFunction(fake_email)
     password = factory.PostGenerationMethodCall('set_password',
-                                                'queenfan86')
+                                                'queenfan86', notify=False)
     is_registered = True
     date_confirmed = factory.Faker('date_time_this_decade', tzinfo=pytz.utc)
     merged_by = None
