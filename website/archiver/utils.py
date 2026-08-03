@@ -1,4 +1,5 @@
 import functools
+import logging
 
 from framework.auth import Auth
 
@@ -15,6 +16,8 @@ from website import (
     settings
 )
 from osf.utils.sanitize import unescape_entities
+
+logger = logging.getLogger(__name__)
 
 
 def send_archiver_size_exceeded_mails(src, user, stat_result, url):
@@ -110,9 +113,18 @@ def handle_archive_fail(reason, src, dst, user, result):
         pass
     else:  # reason == ARCHIVER_UNCAUGHT_ERROR
         send_archiver_uncaught_error_mails(src, user, result, url)
-    dst.root.sanction.forcibly_reject()
-    dst.root.sanction.save()
-    dst.root.delete_registration_tree(save=True)
+    # root が自分自身のときは dst をそのまま使う(dst.root は別インスタンスの
+    # キャッシュを返し、削除結果が呼び出し元インスタンスに反映されないため)。
+    # また関連キャッシュが sanction 設定前の状態のことがある(Django 2.0+ の
+    # fields_cache)ため、DB の最新状態を読み直してから sanction を却下する
+    root = dst if dst.root_id == dst.id else dst.root
+    root.refresh_from_db()
+    if root.sanction:
+        root.sanction.forcibly_reject()
+        root.sanction.save()
+    else:
+        logger.warning('Registration %s has no sanction to reject on archive failure', root._id)
+    root.delete_registration_tree(save=True)
 
 def archive_provider_for(node, user):
     """A generic function to get the archive provider for some node, user pair.
