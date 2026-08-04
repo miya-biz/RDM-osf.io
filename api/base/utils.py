@@ -286,7 +286,6 @@ def check_user_can_create_project(user):
     ).annotate(
         setting_type=F('attribute__setting_type'),
         attribute_name=F('attribute__attribute_name'),
-        setting_id=F('setting_id'),
     ).order_by('id').values(
         'id',
         'attribute_name',
