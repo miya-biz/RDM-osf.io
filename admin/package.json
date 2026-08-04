@@ -42,7 +42,7 @@
     "tar": "7.5.19",
     "underscore": "1.13.7",
     "minimatch": "3.1.5",
-    "brace-expansion": "1.1.12",
+    "brace-expansion": "1.1.18",
     "js-yaml": "3.14.1",
     "qs": "6.5.3",
     "serialize-javascript": "3.1.0",
