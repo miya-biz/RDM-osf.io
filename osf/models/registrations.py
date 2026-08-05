@@ -450,6 +450,9 @@ class Registration(AbstractNode):
             raise NodeStateError('Withdrawal of non-parent registrations is not permitted.')
 
         retraction = self._initiate_retraction(user, justification)
+        # registered_from may hold a stale instance cached at assignment time;
+        # add_log saves the whole row, so a stale copy would overwrite newer state.
+        self.refresh_from_db(fields=['registered_from'])
         self.registered_from.add_log(
             action=NodeLog.RETRACTION_INITIATED,
             params={
