@@ -515,6 +515,14 @@ def remove_failures_from_testmon(ctx, db_path=None):
 
 @task
 def travis_setup(ctx):
+    # The test image may ship these packages prebuilt and provide no npm;
+    # only fall back to npm/bower when they are actually missing.
+    list_of_licenses = os.path.join(HERE, 'node_modules', '@centerforopenscience', 'list-of-licenses')
+    bower_styles = os.path.join(HERE, 'website', 'static', 'vendor', 'bower_components', 'styles')
+    if os.path.isdir(list_of_licenses) and os.path.isdir(bower_styles):
+        print('list-of-licenses and bower styles already installed; skipping npm/bower setup')
+        return
+
     ctx.run('npm install -g bower', echo=True)
 
     with open('package.json', 'r') as fobj:
