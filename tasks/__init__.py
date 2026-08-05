@@ -7,6 +7,7 @@ import os
 import sys
 import json
 import platform
+import shutil
 import subprocess
 import logging
 import sqlite3
@@ -274,7 +275,12 @@ def mailserver(ctx, host='localhost', port=1025):
 @task
 def syntax(ctx):
     """Use pre-commit to run formatters and linters."""
-    ctx.run('pre-commit run --all-files --show-diff-on-failure', echo=True)
+    command = 'pre-commit run --all-files --show-diff-on-failure'
+    if shutil.which('npm') is None:
+        # The jshint hook installs itself through npm, which npm-less images do not provide.
+        print('npm not found; skipping the jshint hook')
+        command = 'SKIP=jshint ' + command
+    ctx.run(command, echo=True)
 
 
 @task(aliases=['req'])
