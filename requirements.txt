@@ -78,7 +78,7 @@ pyjwe==1.0.0
 # Building wheel for cryptography 3.4.0 requires a Rust version incompatible with Docker base image.
 # Required by pyjwe and ndg-httpsclient
 cryptography==3.3.2
-jsonschema==3.1.1
+jsonschema==2.6.0  # 3.x picks best-match validation errors, changing GRDM's user-facing messages built for 2.x first-error order
 django-guardian==2.4.0
 
 # Admin requirements
@@ -120,7 +120,7 @@ transitions==0.8.2
 # enum34==1.1.6
 
 # identifiers
-datacite==1.1.2
+datacite==1.0.1  # GRDM identifiers stack predates the schema43 client rewrite; 1.1.2 encodes unset credentials and breaks
 
 # Metrics
 git+https://github.com/CenterForOpenScience/django-elasticsearch-metrics@2022.0.6
