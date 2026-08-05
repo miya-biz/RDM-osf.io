@@ -277,9 +277,19 @@ def syntax(ctx):
     """Use pre-commit to run formatters and linters."""
     command = 'pre-commit run --all-files --show-diff-on-failure'
     if shutil.which('npm') is None:
-        # The jshint hook installs itself through npm, which npm-less images do not provide.
-        print('npm not found; skipping the jshint hook')
-        command = 'SKIP=jshint ' + command
+        # The jshint hook needs npm even to install its environment, which SKIP
+        # cannot prevent; run from a config copy with the jshint repo removed.
+        import yaml
+        print('npm not found; running pre-commit without the jshint hook')
+        with open('.pre-commit-config.yaml') as fobj:
+            config = yaml.safe_load(fobj)
+        config['repos'] = [
+            repo for repo in config['repos']
+            if all(hook.get('id') != 'jshint' for hook in repo.get('hooks', []))
+        ]
+        with open('.pre-commit-config-no-jshint.yaml', 'w') as fobj:
+            yaml.safe_dump(config, fobj)
+        command += ' --config .pre-commit-config-no-jshint.yaml'
     ctx.run(command, echo=True)
 
 
