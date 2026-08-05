@@ -303,7 +303,9 @@ class NodeList(JSONAPIBaseView, bulk_views.BulkUpdateJSONAPIView, bulk_views.Bul
 
             return nodes
         else:
-            return self.get_queryset_from_request()
+            # Multivalued filters (e.g. several tags matching one node) join and
+            # duplicate rows; django-include used to collapse them during materialization.
+            return self.get_queryset_from_request().distinct()
 
     # overrides ListBulkCreateJSONAPIView, BulkUpdateJSONAPIView, BulkDestroyJSONAPIView
     def get_serializer_class(self):

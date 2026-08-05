@@ -158,13 +158,15 @@ class RegistrationList(JSONAPIBaseView, generics.ListCreateAPIView, bulk_views.B
         if blacklisted:
             registrations = registrations.exclude(retraction__isnull=False)
 
+        # Multivalued filters (e.g. several tags matching one registration) join and
+        # duplicate rows; django-include used to collapse them during materialization.
         return registrations.select_related(
             'root',
             'root__embargo',
             'root__embargo_termination_approval',
             'root__retraction',
             'root__registration_approval',
-        )
+        ).distinct()
 
     # overrides ListCreateJSONAPIView
     def perform_create(self, serializer):
