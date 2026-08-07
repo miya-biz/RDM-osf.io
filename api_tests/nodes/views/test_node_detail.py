@@ -480,7 +480,6 @@ class TestNodeDetail:
         project_private.deleted = log_date
         project_private.is_deleted = True
         project_private.save()
-        registration.reload()
         project_public.reload()
 
         res = app.get(url)

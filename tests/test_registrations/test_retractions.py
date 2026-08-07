@@ -21,7 +21,7 @@ from osf.exceptions import (
     InvalidSanctionApprovalToken, InvalidSanctionRejectionToken,
     NodeStateError,
 )
-from osf.models import Contributor, Retraction
+from osf.models import Contributor, Node, Retraction
 from osf.utils import permissions
 
 
@@ -101,6 +101,21 @@ class RegistrationRetractionModelsTestCase(OsfTestCase):
         assert (self.registration.retraction.justification) == (self.valid_justification)
         assert (self.registration.retraction.initiated_by) == (self.user)
         assert (self.registration.retraction.initiation_date.date()) == (timezone.now().date())
+
+    def test_retract_does_not_revive_deleted_registered_from(self):
+        # A long-lived registration instance (e.g. in a celery task) may hold
+        # registered_from cached from before the source project was deleted;
+        # retraction must not write that stale copy back to the database.
+        assert not self.registration.registered_from.is_deleted
+        source = Node.objects.get(id=self.registration.registered_from_id)
+        source.remove_node(auth=Auth(self.user))
+        source.reload()
+        assert source.is_deleted
+
+        self.registration.retract_registration(self.user, self.valid_justification)
+
+        source.reload()
+        assert source.is_deleted
 
     def test_retract_component_raises_NodeStateError(self):
         project = ProjectFactory(is_public=True, creator=self.user)
