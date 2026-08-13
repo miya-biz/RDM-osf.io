@@ -1397,9 +1397,6 @@ function _createFolder(event, dismissCallback, helpText) {
     helpText('');
     var val = $.trim(tb.select('#createFolderInput').val());
     var parent = tb.multiselected()[0];
-    if (!parent.open) {
-         tb.updateFolder(null, parent);
-    }
     if (val.length < 1) {
         helpText(gettext('Please enter a folder name.'));
         return;
@@ -1424,11 +1421,26 @@ function _createFolder(event, dismissCallback, helpText) {
         config: $osf.setXHRAuthorization,
         url: waterbutler.buildCreateFolderUrl(path, parent.data.provider, parent.data.nodeId, options, extra)
     }).then(function(item) {
-        item = tb.options.lazyLoadPreprocess.call(this, item).data;
-        inheritFromParent({data: item}, parent, ['branch']);
-        item = tb.createItem(item, parent.id);
-        orderFolder.call(tb, parent);
-        item.notify.update(gettext('New folder created!'), 'success', undefined, 1000);
+        if (!parent.open) {
+            // A closed parent has no loaded listing. It must be fetched after
+            // the create request has completed: a listing requested while the
+            // creation is still in flight can resolve last and rebuild the
+            // children from a state that predates the new folder.
+            tb.updateFolder(null, parent, function() {
+                var created = parent.children.filter(function(child) {
+                    return child.data.name === val;
+                })[0];
+                if (created) {
+                    created.notify.update(gettext('New folder created!'), 'success', undefined, 1000);
+                }
+            });
+        } else {
+            item = tb.options.lazyLoadPreprocess.call(this, item).data;
+            inheritFromParent({data: item}, parent, ['branch']);
+            item = tb.createItem(item, parent.id);
+            orderFolder.call(tb, parent);
+            item.notify.update(gettext('New folder created!'), 'success', undefined, 1000);
+        }
         if(dismissCallback) {
             dismissCallback();
         }
@@ -1447,9 +1459,6 @@ function _createFile(event, dismissCallback, helpText, extension) {
     helpText('');
     var val = $.trim(tb.select('#createFileInput').val());
     var parent = tb.multiselected()[0];
-    if (!parent.open) {
-        tb.updateFolder(null, parent);
-    }
     if (val.length < 1) {
         helpText(gettext('Please enter a file name.'));
         return;
@@ -1480,14 +1489,33 @@ function _createFile(event, dismissCallback, helpText, extension) {
         // url: waterbutler.buildUploadUrl(path, parent.data.provider, parent.data.nodeId, options, extra)
         url: waterbutler.buildTreeBeardUpload(parent, options)
     }).then(function(item) {
-        item = tb.options.lazyLoadPreprocess.call(this, item).data;
-        inheritFromParent({data: item}, parent, ['branch']);
-        item = tb.createItem(item, parent.id);
-        orderFolder.call(tb, parent);
-        item.notify.update(gettext('New file created!'), 'success', undefined, 1000);
-        if (extension.match('(txt|docx|xlsx|pptx)')) {
-            var edit_url = window.contextVars.osfURL + window.contextVars.node.id + '/editonlyoffice/' +item.data.id;
-            window.open(edit_url, 'ONLYOFFICE Editor');
+        if (!parent.open) {
+            // A closed parent has no loaded listing. It must be fetched after
+            // the create request has completed: a listing requested while the
+            // creation is still in flight can resolve last and rebuild the
+            // children from a state that predates the new file.
+            tb.updateFolder(null, parent, function() {
+                var created = parent.children.filter(function(child) {
+                    return child.data.name === fname;
+                })[0];
+                if (created) {
+                    created.notify.update(gettext('New file created!'), 'success', undefined, 1000);
+                    if (extension.match('(txt|docx|xlsx|pptx)')) {
+                        var edit_url = window.contextVars.osfURL + window.contextVars.node.id + '/editonlyoffice/' + created.data.id;
+                        window.open(edit_url, 'ONLYOFFICE Editor');
+                    }
+                }
+            });
+        } else {
+            item = tb.options.lazyLoadPreprocess.call(this, item).data;
+            inheritFromParent({data: item}, parent, ['branch']);
+            item = tb.createItem(item, parent.id);
+            orderFolder.call(tb, parent);
+            item.notify.update(gettext('New file created!'), 'success', undefined, 1000);
+            if (extension.match('(txt|docx|xlsx|pptx)')) {
+                var edit_url = window.contextVars.osfURL + window.contextVars.node.id + '/editonlyoffice/' +item.data.id;
+                window.open(edit_url, 'ONLYOFFICE Editor');
+            }
         }
         if(dismissCallback) {
             dismissCallback();
