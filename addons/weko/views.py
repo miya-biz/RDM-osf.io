@@ -110,6 +110,31 @@ def _get_file_metadata_node(node, metadata_node_id):
         raise ValueError('Unexpected node ID: {}'.format(metadata_node_id))
     return AbstractNode.objects.filter(guids___id=metadata_node_id).first()
 
+def _read_publish_task_status(aresult):
+    """Read the state and info of a publish task exactly once.
+
+    Every attribute access on AsyncResult queries the result backend again,
+    so the task can finish between two reads and a key that was present at
+    the first read may be gone at the second.
+    """
+    state = aresult.state
+    info = aresult.info
+    error = None
+    progress = None
+    result = None
+    response = None
+    if state == states.FAILURE:
+        error = str(info)
+    elif isinstance(info, dict) and 'progress' in info:
+        progress = {
+            'state': state,
+            'rate': info['progress'],
+        }
+    elif isinstance(info, dict) and 'result' in info:
+        result = info['result']
+        response = info.get('response')
+    return error, progress, result, response
+
 @must_be_logged_in
 @must_be_rdm_addons_allowed(SHORT_NAME)
 def weko_oauth_connect(repoid, auth):
@@ -284,20 +309,7 @@ def weko_get_publishing_file(auth, did=None, index_id=None, mnode=None, filepath
     if task_id is None:
         return _response_file_metadata(addon, filepath)
     aresult = celery_app.AsyncResult(task_id)
-    error = None
-    progress = None
-    result = None
-    response = None
-    if aresult.failed():
-        error = str(aresult.info)
-    elif aresult.info is not None and 'progress' in aresult.info:
-        progress = {
-            'state': aresult.state,
-            'rate': aresult.info['progress'],
-        }
-    elif aresult.info is not None and 'result' in aresult.info:
-        result = aresult.info['result']
-        response = aresult.info.get('response')
+    error, progress, result, response = _read_publish_task_status(aresult)
     return _response_file_metadata(addon, filepath, progress=progress, error=error, result=result, response=response)
 
 def _publish_project_metadata(auth, node, addon, index_id, metadata_type, metadata_id, schema_id, project_metadata):
@@ -356,25 +368,7 @@ def _get_publishing_project_metadata_progress(addon, metadata_type, metadata_id)
     if task_id is None:
         return _response_project_metadata(addon, metadata_type, metadata_id)
     aresult = celery_app.AsyncResult(task_id)
-    error = None
-    progress = None
-    result = None
-    response = None
-    # state and info must be read exactly once: every attribute access queries
-    # the result backend again, so the task can finish between two reads and a
-    # key that was present at the first read may be gone at the second.
-    state = aresult.state
-    info = aresult.info
-    if state == states.FAILURE:
-        error = str(info)
-    elif isinstance(info, dict) and 'progress' in info:
-        progress = {
-            'state': state,
-            'rate': info['progress'],
-        }
-    elif isinstance(info, dict) and 'result' in info:
-        result = info['result']
-        response = info.get('response')
+    error, progress, result, response = _read_publish_task_status(aresult)
     return _response_project_metadata(addon, metadata_type, metadata_id, progress=progress, error=error, result=result, response=response)
 
 
