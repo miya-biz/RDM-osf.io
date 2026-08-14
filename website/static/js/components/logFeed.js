@@ -91,7 +91,10 @@ var LogFeed = {
                 $('#totalLogs').val(result.links.meta.total);
             }
             self.logRequestPending(true);
-            var promise = m.request({method : 'GET', url : url, config: mHelpers.apiV2Config({withCredentials: window.contextVars.isOnRootDomain})});
+            // background: true so a slow logs response does not hold mithril's global
+            // redraw lock and freeze every other mithril component on the page
+            // (e.g. the file browser toolbar); completion is redrawn explicitly below.
+            var promise = m.request({method : 'GET', url : url, config: mHelpers.apiV2Config({withCredentials: window.contextVars.isOnRootDomain}), background: true});
             promise.then(
                 function(result) {
                     _processResults(result);
