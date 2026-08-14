@@ -74,3 +74,27 @@ def test_progress_poll_reports_failure():
 
     attr = ret['data']['attributes']
     assert attr['error'] == 'deposit failed'
+
+
+@pytest.mark.usefixtures('request_context')
+def test_file_progress_poll_uses_a_single_info_snapshot():
+    """The file publishing poll shares the same live-property hazard as the
+    project metadata poll and must branch on one snapshot as well."""
+    from inspect import unwrap
+    from addons.weko import views
+
+    progress_info = {'progress': 60}
+    result_info = {'result': 'https://weko.test/records/1', 'response': {'status': 'OK'}}
+    aresult = _async_result('PROGRESS', [progress_info, progress_info, result_info, result_info])
+
+    addon = _addon_with_task('task123')
+    node = mock.MagicMock()
+    node.get_addon.return_value = addon
+
+    with mock.patch.object(views.celery_app, 'AsyncResult', return_value=aresult):
+        ret = unwrap(views.weko_get_publishing_file)(
+            auth=None, mnode='mnode123', filepath='osfstorage/file123',
+            node=node, project=None)
+
+    attr = ret['data']['attributes']
+    assert attr['progress'] == {'state': 'PROGRESS', 'rate': 60}
